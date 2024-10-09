@@ -3,24 +3,28 @@ export class StringCalculator {
     if (numbers === '') {
       return 0;
     }
-    // const numArray = numbers.split(',');
-    // Replace newline characters with commas, then split by comma
-    // const numArray = numbers.replace(/\n/g, ',').split(',');
-    // return numArray.reduce((sum, current) => sum + parseInt(current), 0);
 
-    let delimiter = ',';
-    if (numbers.startsWith('//')) {
-      const delimiterEndIndex = numbers.indexOf('\n');
-      delimiter = numbers.substring(2, delimiterEndIndex);
-      numbers = numbers.substring(delimiterEndIndex + 1);
-    }
-    const numArray = numbers.replace(/\n/g, delimiter).split(delimiter);
-    const negatives = numArray.filter(num => parseInt(num) < 0);
+    // Custom delimiter support: check for "//[delimiter]\n[numbers]"
+    const delimiterPattern = /^\/\/(.+)\n/;
+    let delimiters = [',', '\n'];
+    let numberString = numbers;
 
-    if (negatives.length > 0) {
-      throw new Error(`Negative numbers not allowed: ${negatives.join(',')}`);
+    if (delimiterPattern.test(numbers)) {
+      const delimiterMatch = numbers.match(delimiterPattern);
+      delimiters.push(delimiterMatch[1]);
+      numberString = numbers.replace(delimiterPattern, '');
     }
 
-    return numArray.reduce((sum, current) => sum + parseInt(current), 0);
+    // regex to split by multiple delimiters
+    const delimiterRegex = new RegExp(`[${delimiters.join('')}]`);
+    const numberArray = numberString.split(delimiterRegex).map(Number);
+
+    // Handle negative numbers
+    const negativeNumbers = numberArray.filter(n => n < 0);
+    if (negativeNumbers.length > 0) {
+      throw new Error(`Negative numbers not allowed: ${negativeNumbers.join(', ')}`);
+    }
+
+    return numberArray.reduce((sum, num) => sum + num, 0);
   }
 }
