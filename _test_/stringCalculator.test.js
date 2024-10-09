@@ -40,7 +40,23 @@ describe('StringCalculator', () => {
   });
 
   test('should handle large numbers', () => {
-    expect(calculator.add('1000,2000,3000')).toBe(6000);
+    expect(calculator.add('1000,2000,3000')).toBe(1000);
+  });
+
+  test('should include numbers less than or equal to 1000', () => {
+    expect(calculator.add('1000,1001,2')).toBe(1002);
+  });
+
+  test('should handle custom delimiter of any length', () => {
+    expect(calculator.add('//[***]\n1***2***3')).toBe(6);
+  });
+
+  test('should handle multiple custom delimiters', () => {
+    expect(calculator.add('//[*][%]\n1*2%3')).toBe(6);
+  });
+
+  test('should handle multiple custom delimiters with length longer than one character', () => {
+    expect(calculator.add('//[***][%%%]\n1***2%%%3')).toBe(6);
   });
   
 });
